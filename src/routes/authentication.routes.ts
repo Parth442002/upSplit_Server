@@ -30,7 +30,7 @@ router.post("/register",async(req:Request,res:Response)=>{
     }
     const user=await UserModel.create(userData)
     const token = jwt.sign(
-      { user_id: user._id, phoneNumber:user.phoneNumber,},
+      { id: user._id, phoneNumber:user.phoneNumber,},
       "token",
       {
         expiresIn: "2400h",
@@ -58,7 +58,7 @@ router.post("/login",async(req:Request,res:Response)=>{
     if (user && (await bcrypt.compare(password, user.password))) {
       // Create token
       const token = jwt.sign(
-        { user_id: user._id, phoneNumber:user.phoneNumber,},
+        {id: user._id, phoneNumber:user.phoneNumber,},
         "token",
         {
           expiresIn: "2400h",
