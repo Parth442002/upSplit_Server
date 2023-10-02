@@ -4,7 +4,9 @@ import { Request as ExpressRequest } from 'express';
 declare global {
   namespace Express {
     interface Request {
-      user: { id: string }; // Your custom property
+      user: {
+        user_id: any; id: string
+}; // Your custom property
     }
   }
 }

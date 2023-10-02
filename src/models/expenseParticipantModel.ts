@@ -5,8 +5,8 @@ export interface ExpenseParticipantDocument extends Document{
   share:Number,
   paidBack:Number,
   settled:Boolean,
-  settleDate:Date,
-  isPayer:Boolean
+  isPayer:Boolean,
+  settledDate:Date,
 }
 const ExpenseParticipantSchema = new mongoose.Schema({
   user: {
@@ -24,26 +24,25 @@ const ExpenseParticipantSchema = new mongoose.Schema({
     min:0,
   },
   settled:{
-    type:Boolean
+    type:Boolean,
+    default:false,
   },
-  settlementDate:{
+  settledDate:{
     type:Date,
     required:false
   },
   isPayer:{
     type:Boolean,
   }
-});
-//Figure out Settled
-ExpenseParticipantSchema.virtual('settled').get(function () {
-  return this.paidBack >= this.share;
-});
-// Update
-ExpenseParticipantSchema.virtual('settlementDate').get(function () {
-  if (this.paidBack==this.share) {
-    return new Date();
+},{timestamps:true});
+
+ExpenseParticipantSchema.methods.updateMeta=function(){
+  this.settled=this.share==this.paidBack
+  if(this.settled==true){
+    this.settledDate=new Date();
   }
-});
+  return this.settled
+}
 
 const ExpenseParticipantModel = mongoose.model<ExpenseParticipantDocument>('ExpenseParticipant', ExpenseParticipantSchema);
 

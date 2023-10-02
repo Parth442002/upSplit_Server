@@ -25,6 +25,7 @@ const ExpenseSchema=new mongoose.Schema({
   },
   amountPayed:{
     type:Number,
+    default:0
   },
   participants: {
     type: [ExpenseParticipantModel.schema],
@@ -45,17 +46,19 @@ const ExpenseSchema=new mongoose.Schema({
   }
 })
 
-//Virtual Functions
-// Calculate total amountPayed
-ExpenseSchema.virtual('amountPayed').get(function () {
-  // Calculate the 'amountPayed' by summing up the 'paidBack' values of all participants
-  return this.participants.reduce((total, participant) => total + (participant.paidBack.valueOf() || 0), 0);
-});
 
-//Figure out Settled
-ExpenseSchema.virtual('settled').get(function () {
-  return this.totalAmount==this.amountPayed;
-});
+//Update Functions
+ExpenseSchema.methods.updateMeta = function () {
+  this.amountPayed = this.participants.reduce((total: number, participant: ExpenseParticipantDocument) => {
+    // Ensure both 'total' and 'participant.paidBack' are of type 'number'
+    return total + (participant.paidBack.valueOf() || 0);
+  }, 0);
+  this.settled=this.amountPayed==this.totalAmount
+  if (this.settled){
+    this.settleDate=new Date();
+  }
+  return this.settled
+};
 
 const ExpenseModel = mongoose.model<ExpenseDocument>('Expense', ExpenseSchema);
 
