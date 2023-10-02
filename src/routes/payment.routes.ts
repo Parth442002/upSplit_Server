@@ -8,7 +8,8 @@ const router = express.Router();
 //Get all Payments from the current user
 router.get("/",verifyToken,async (req:Request, res:Response) => {
   try {
-    const userId = req.user.id // Assuming you have user authentication middleware
+    const userId = req.user.id
+
     const payments: PaymentDocument[] = await PaymentModel.find({
       $or: [{ sender: userId }, { receiver: userId }],
     });

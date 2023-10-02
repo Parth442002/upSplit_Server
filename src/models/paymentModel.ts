@@ -5,7 +5,8 @@ export interface PaymentDocument extends Document {
   sender:String,
   receiver:String,
   amount:Number,
-  remarks?:String
+  remarks?:String,
+  isCompleted:Boolean,
 }
 // Create the User schema
 const paymentSchema = new Schema<PaymentDocument>({
@@ -29,6 +30,10 @@ const paymentSchema = new Schema<PaymentDocument>({
     type:String,
     required:false,
     maxlength:150
+  },
+  isCompleted:{
+    type:Boolean,
+    default:false,
   }
 },{timestamps:true});
 
