@@ -6,7 +6,9 @@ export interface ExpenseParticipantDocument extends Document{
   paidBack:Number,
   settled:Boolean,
   isPayer:Boolean,
-  settledDate:Date,
+  settledDate?:Date,
+
+  updateMeta(): Boolean
 }
 const ExpenseParticipantSchema = new mongoose.Schema({
   user: {
@@ -33,6 +35,7 @@ const ExpenseParticipantSchema = new mongoose.Schema({
   },
   isPayer:{
     type:Boolean,
+    default:false,
   }
 },{timestamps:true});
 
