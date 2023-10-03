@@ -9,7 +9,6 @@ const router = express.Router();
 //User Register View
 router.post("/register",async(req:Request,res:Response)=>{
   try {
-    console.log(req.body)
     const { phoneNumber,password,username, } = req.body;
     //Fields which are neccesary for User Creation
     if (!(phoneNumber && password && username)) {

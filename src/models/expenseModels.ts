@@ -4,13 +4,16 @@ import ExpenseParticipantModel,{ ExpenseParticipantDocument } from './expensePar
 export interface ExpenseDocument extends Document{
   payer:String,
   totaAmount:Number,
-  amountPayed:Number,
+  amountPayed?:Number,
   participants: ExpenseParticipantDocument[];
   //Meta Data
   title:String,
-  desc:String,
-  settled:Boolean,
-  settleDate:Date
+  desc?:String,
+  settled?:Boolean,
+  settleDate?:Date,
+
+  //Functions
+  updateMeta(): Boolean;
 }
 
 const ExpenseSchema=new mongoose.Schema({
@@ -25,7 +28,8 @@ const ExpenseSchema=new mongoose.Schema({
   },
   amountPayed:{
     type:Number,
-    default:0
+    default:0,
+    required:false
   },
   participants: {
     type: [ExpenseParticipantModel.schema],
@@ -36,13 +40,17 @@ const ExpenseSchema=new mongoose.Schema({
     maxLength:150,
   },
   desc:{
-    type:String}
+    type:String,
+    required:false
+  }
   ,
   settled:{
-    type:Boolean
+    type:Boolean,
+    required:false
   },
   settleDate:{
-    type:Date
+    type:Date,
+    required:false
   }
 })
 

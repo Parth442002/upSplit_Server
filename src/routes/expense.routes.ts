@@ -21,5 +21,29 @@ router.get("/",verifyToken,async(req:Request,res:Response)=>{
   }
 })
 
+//Create an expense
+router.post("/",verifyToken,async(req:Request,res:Response)=>{
+  try {
+    const {payer,totalAmount,participants,title}=req.body
+    if (!(payer && totalAmount  && participants && title)) {
+      res.status(400).send("Essential Data Missing");
+      return;
+    }
+    const expense=new ExpenseModel({
+      payer:payer,
+      totalAmount:totalAmount,
+      participants:participants,
+      title:title,
+      desc:req.body?.desc
+    })
+    expense.updateMeta();
+    await expense.save()
+    return res.status(201).send(expense)
+  } catch (error) {
+    console.log(error)
+    return res.status(400).send("Internal Server Error")
+  }
+})
+
 
 export default router
