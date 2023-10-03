@@ -109,7 +109,7 @@ router.delete('/:expenseId', verifyToken, async (req:Request, res:Response) => {
 });
 
 //Settle an Expense
-router.post("/settle/:expenseId/:userId/",verifyToken, async(req:Request,res:Response)=>{
+router.put("/settle/:expenseId/:userId/",verifyToken, async(req:Request,res:Response)=>{
   try {
     const {expenseId,userId}=req.params
     const {amount}=req.body
