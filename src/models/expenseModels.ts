@@ -65,6 +65,15 @@ ExpenseSchema.methods.updateMeta = function () {
   if (this.settled){
     this.settleDate=new Date();
   }
+  //Updating the status of the payer
+  const payer: ExpenseParticipantDocument | undefined = this.participants.find(
+    (participant: ExpenseParticipantDocument) => participant.isPayer
+  );
+  if (payer) {
+    payer.paidBack = payer.share;
+    payer.updateMeta();
+  }
+
   return this.settled
 };
 

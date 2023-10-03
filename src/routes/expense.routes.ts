@@ -71,7 +71,7 @@ router.put("/:expenseId/",verifyToken,async(req:Request,res:Response)=>{
     // Call the updateMeta function on each participant
     for (const participant of updatedExpense.participants) {
       participant.updateMeta();
-    }
+  }
 
     updatedExpense.updateMeta();
     await updatedExpense.save()
