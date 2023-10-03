@@ -2,6 +2,7 @@ import express,{ Response} from 'express';
 import mongoose from "mongoose";
 require("dotenv").config();
 import ExpenseModel,{ExpenseDocument} from '../models/expenseModels';
+import { ExpenseParticipantDocument } from '../models/expenseParticipantModel';
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
 import {isPayer} from "../permissions/isPayer"
@@ -107,8 +108,36 @@ router.delete('/:expenseId', verifyToken, async (req:Request, res:Response) => {
   }
 });
 
-module.exports = router;
-
-
+//Settle an Expense
+router.post("/settle/:expenseId/:userId/",verifyToken, async(req:Request,res:Response)=>{
+  try {
+    const {expenseId,userId}=req.params
+    const {amount}=req.body
+    //Invalid Params
+    if (!mongoose.Types.ObjectId.isValid(expenseId)||!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid expense ID' });
+    }
+    const expense=await ExpenseModel.findById(expenseId)
+    if(!expense){
+      return res.status(404).send("Expense not found")
+    }
+    const participant = expense.participants.find((participant: ExpenseParticipantDocument) =>
+    participant.user.toString() === userId
+    );
+    if(!participant){
+      return res.status(404).send("The given user is not a participant of the expense")
+    }
+    //Only if all the checks return true
+    participant.paidBack=participant.paidBack+amount
+    participant.updateMeta()
+    participant.save()
+    expense.updateMeta()
+    expense.save()
+    return res.status(200).send(expense)
+  } catch (error) {
+    console.log(error)
+    return res.status(400).send("Internal Server Error")
+  }
+})
 
 export default router

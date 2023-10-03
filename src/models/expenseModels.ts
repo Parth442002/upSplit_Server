@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, mongo } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import ExpenseParticipantModel,{ ExpenseParticipantDocument } from './expenseParticipantModel';
 
 export interface ExpenseDocument extends Document{
