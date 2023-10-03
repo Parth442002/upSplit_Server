@@ -4,6 +4,8 @@ require("dotenv").config();
 import ExpenseModel,{ExpenseDocument} from '../models/expenseModels';
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
+import {isPayer} from "../permissions/isPayer"
+
 const router = express.Router();
 
 //Get all Expense were you are a payer or participant
@@ -79,5 +81,34 @@ router.put("/:expenseId/",verifyToken,async(req:Request,res:Response)=>{
     return res.status(400).send("Internal Server Error")
   }
 })
+//Delete Expense only if Payer
+router.delete('/:expenseId', verifyToken, async (req:Request, res:Response) => {
+  try {
+    const { expenseId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(expenseId)) {
+      return res.status(400).json({ error: 'Invalid expense ID' });
+    }
+    const userId = req.user.id;
+    const userIsPayer = await isPayer(userId, expenseId);
+    if (!userIsPayer) {
+      return res.status(403).json({ error: 'You are not the payer of this expense' });
+    }
+
+    const deletedExpense = await ExpenseModel.findOneAndDelete({ _id: expenseId });
+
+    if (!deletedExpense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    return res.json({ message: 'Expense deleted successfully', deletedExpense });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+module.exports = router;
+
+
 
 export default router
