@@ -4,9 +4,9 @@ export interface GroupMemberDocument extends Document{
   user:String,
   isAdmin:Boolean,
   groupId?:String,
-  balance:Number,
-  settled:Boolean,
-  joinDate:Date,
+  balance?:Number,
+  settled?:Boolean,
+  joinDate?:Date,
 }
 
 const GroupMemberSchema=new mongoose.Schema({
