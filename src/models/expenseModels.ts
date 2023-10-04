@@ -1,11 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import ExpenseParticipantModel,{ ExpenseParticipantDocument } from './expenseParticipantModel';
+import { GroupDocument } from './groupModels';
 
 export interface ExpenseDocument extends Document{
   payer:String,
   totaAmount:Number,
   amountPayed?:Number,
   participants: ExpenseParticipantDocument[];
+  groupId:String;
   //Meta Data
   title:String,
   desc?:String,
@@ -34,6 +36,10 @@ const ExpenseSchema=new mongoose.Schema({
   participants: {
     type: [ExpenseParticipantModel.schema],
     default: [],
+  },
+  groupId:{
+    type:mongoose.Schema.Types.ObjectId,
+    required:false,
   },
   title:{
     type:String,

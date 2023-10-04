@@ -113,6 +113,7 @@ router.put("/settle/:expenseId/:userId/",verifyToken, async(req:Request,res:Resp
   try {
     const {expenseId,userId}=req.params
     const {amount}=req.body
+    //?Implement Checks for amount
     //Invalid Params
     if (!mongoose.Types.ObjectId.isValid(expenseId)||!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ error: 'Invalid expense ID' });

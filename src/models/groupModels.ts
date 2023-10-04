@@ -1,15 +1,18 @@
 import mongoose,{Schema,Document,} from "mongoose";
-import GroupParticipantModel, { GroupParticipantDocument } from "./groupParticipants";
+import GroupMemberModel, { GroupMemberDocument } from "./groupMember";
+import ExpenseModel,{ExpenseDocument} from "./expenseModels";
 
 export interface GroupDocument extends Document{
   name:String,
   desc?:String,
   creator:String,
-  participants:GroupParticipantDocument[],
+  members:GroupMemberDocument[],
+  expenses:ExpenseDocument[],
+  settled:Boolean,
   createdDate: Date,
 }
 
-const GroupSchema=new mongoose.Schema({
+const GroupSchema:Schema=new mongoose.Schema({
   name:{
     type:String,
   },
@@ -21,9 +24,13 @@ const GroupSchema=new mongoose.Schema({
     ref:"User",
     required:true
   },
-  participants:{
-    type: [GroupParticipantModel.schema],
+  members:{
+    type: [GroupMemberModel.schema],
     default: [],
+  },
+  expenses:{
+    type:[ExpenseModel.schema],
+    default:[]
   },
   createdDate:{
     type:Date,
