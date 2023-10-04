@@ -1,5 +1,5 @@
 import mongoose,{Schema,Document,} from "mongoose";
-import GroupMemberModel, { GroupMemberDocument } from "./groupMember";
+import GroupMemberModel, { GroupMemberDocument } from "./groupMemberModel";
 import ExpenseModel,{ExpenseDocument} from "./expenseModels";
 
 export interface GroupDocument extends Document{
