@@ -34,7 +34,17 @@ router.post("/",verifyToken,async(req:Request,res:Response)=>{
     if (!(name)) {
       return res.status(400).send("Essential Data Missing");
     }
-    const group=new GroupModel({...req.body,creator:req.user.id})
+    const group=new GroupModel({
+      ...req.body,
+      creator:req.user.id,
+    })
+    // Create a new GroupMemberModel instance for the creator
+    const creatorMember = new GroupMemberModel({
+      user: req.user.id,
+      isAdmin: true,
+    });
+    // Push the creator member into the members array
+    group.members.push(creatorMember);
     await group.save()
     return res.status(201).send(group)
   } catch (error) {

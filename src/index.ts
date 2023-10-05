@@ -5,6 +5,7 @@ import connect from "./config/database"
 import AuthRoutes from "./routes/authentication.routes"
 import ExpenseRoutes from "./routes/expense.routes";
 import GroupRoutes from "./routes/group.routes"
+import GroupExpenseRoutes from "./routes/groupExpenses.routes";
 
 //Config Files
 const port:Number = Number(process.env.port)||8000
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use("/auth",AuthRoutes);
 app.use("/expenses",ExpenseRoutes);
 app.use("/groups",GroupRoutes);
+app.use("/groups",GroupExpenseRoutes);
 
 
 //Connect to DB
