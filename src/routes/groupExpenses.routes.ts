@@ -8,6 +8,7 @@ import UserModel from '../models/userModel';
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
 import { isMember } from '../permissions/isMember';
+import { canUserUpdateOrDeleteExpense } from '../permissions/canUpdateDeleteGroupExpense';
 
 
 const router = express.Router();
@@ -34,6 +35,7 @@ router.get('/:groupId/expenses', verifyToken,async (req: Request, res: Response)
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 //? Add expense to the group
 router.post("/:groupId/add_expense", verifyToken, async (req: Request, res: Response) => {
@@ -98,6 +100,37 @@ router.post("/:groupId/add_expense", verifyToken, async (req: Request, res: Resp
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+//? Delete Expense
+router.delete("/:groupId/:expenseId", verifyToken, async (req:Request, res:Response) => {
+  try {
+    const { groupId, expenseId } = req.params;
+    const group = await GroupModel.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+    const isExpenseInGroup = group.expenses.some(expense => expense.id.toString() === expenseId);
+    if (!isExpenseInGroup) {
+      return res.status(403).json({ error: 'Expense does not belong to the group' });
+    }
+    const canUpdateDelete=await canUserUpdateOrDeleteExpense(req.user.id,groupId,expenseId)
+    if (!canUpdateDelete) {
+      return res.status(403).json({ error: 'Permission denied: User cannot delete the expense' });
+    }
+    // Delete the expense here
+    group.expenses = group.expenses.filter(exp => exp.toString() !== expenseId);
+    // Save the updated group
+    await group.save();
+    // Delete the expense
+    await ExpenseModel.findByIdAndDelete(expenseId);
+
+    return res.status(200).json({ message: 'Expense deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 
 export default router;
