@@ -18,7 +18,7 @@ const router = express.Router();
 //? Get all Groups of Current User
 router.get("/",verifyToken,async (req:Request,res:Response)=>{
   try {
-    const allGroups = await GroupModel.find();
+    const allGroups = await GroupModel.find().populate("members.user","username")
     const groups=allGroups.filter(group=>isMember(req.user.id,group.id))
     return res.status(200).send(groups)
   } catch (error) {
@@ -46,15 +46,18 @@ router.post("/",verifyToken,async(req:Request,res:Response)=>{
     // Push the creator member into the members array
     group.members.push(creatorMember);
     await group.save()
-    return res.status(201).send(group)
+    const newGrp=await GroupModel.findById(group.id).populate('creator', 'username');
+    return res.status(201).send(newGrp)
   } catch (error) {
     console.log(error)
     return res.status(400).send("Internal Server Error")
   }
 })
 
+//? Get Group Info
+
 //? Add Member to Group
-router.post("/:groupId/add_members",verifyToken,async (req:Request,res:Response)=>{
+router.post("/:groupId/members",verifyToken,async (req:Request,res:Response)=>{
   try {
     const { memberDataList } = req.body;
     const {groupId}=req.params

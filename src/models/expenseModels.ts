@@ -1,13 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import ExpenseParticipantModel,{ ExpenseParticipantDocument } from './expenseParticipantModel';
-import { GroupDocument } from './groupModels';
-
 export interface ExpenseDocument extends Document{
   payer:String,
   totaAmount:Number,
   amountPayed?:Number,
   participants: ExpenseParticipantDocument[];
-  groupId:String;
+  groupId?:String;
   //Meta Data
   title:String,
   desc?:String,
@@ -18,7 +16,7 @@ export interface ExpenseDocument extends Document{
   updateMeta(): Boolean;
 }
 
-const ExpenseSchema=new mongoose.Schema({
+const ExpenseSchema:Schema=new mongoose.Schema({
   payer:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"User",
@@ -48,8 +46,7 @@ const ExpenseSchema=new mongoose.Schema({
   desc:{
     type:String,
     required:false
-  }
-  ,
+  },
   settled:{
     type:Boolean,
     required:false

@@ -39,7 +39,7 @@ router.post("/",verifyToken,async(req:Request,res:Response)=>{
       totalAmount:totalAmount,
       participants:participants,
       title:title,
-      desc:req.body?.desc
+      desc:req.body?.desc,
     })
     expense.updateMeta();
     await expense.save()

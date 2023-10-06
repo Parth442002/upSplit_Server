@@ -7,7 +7,6 @@ export interface GroupDocument extends Document{
   desc?:String,
   creator:String,
   members:GroupMemberDocument[],
-  expenses:ExpenseDocument[],
   settled:Boolean,
   createdDate: Date,
 }
@@ -27,10 +26,6 @@ const GroupSchema:Schema=new mongoose.Schema({
   members:{
     type: [GroupMemberModel.schema],
     default: [],
-  },
-  expenses:{
-    type:[ExpenseModel.schema],
-    default:[]
   },
   createdDate:{
     type:Date,
