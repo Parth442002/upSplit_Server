@@ -12,6 +12,7 @@ import {canAddMember} from "../permissions/canAddMember"
 //Functions
 import { addMembersToGroup } from '../functions/addMembersToGroup';
 import { removeMembersFromGroups } from '../functions/removeMembersFromGroups';
+import { verify } from 'crypto';
 
 const router = express.Router();
 
@@ -55,7 +56,23 @@ router.post("/",verifyToken,async(req:Request,res:Response)=>{
 })
 
 //? Get Group Info
+router.get("/:groupId/",verifyToken,async (req:Request,res:Response)=>{
+  try {
+    const {groupId}=req.params;
+    const isValidUser=await isMember(req.user.id,groupId)
+    if(!isValidUser){
+      return res.status(404).send({error:"You do not belong to this group"})
+    }
+    const group=await GroupModel.findById(groupId).populate("creator members.user","username")
+    if(!group){
+      return res.status(404).send({error:"Group Not found"})
+    }
+    return res.status(201).send({group:group})
 
+  } catch (error) {
+
+  }
+})
 //? Add Member to Group
 router.post("/:groupId/members",verifyToken,async (req:Request,res:Response)=>{
   try {
