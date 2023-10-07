@@ -118,4 +118,27 @@ router.put("/:groupId/expenses/:expenseId/", verifyToken, async (req:Request, re
   }
 });
 
+//? Delete Group Expense
+router.delete("/:groupId/expenses/:expenseId/", verifyToken, async (req:Request, res:Response) => {
+  try {
+    const { groupId, expenseId } = req.params;
+    const group = await GroupModel.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+    const canUpdateDelete=await canUserUpdateOrDeleteExpense(req.user.id,groupId,expenseId)
+    if (!canUpdateDelete) {
+      return res.status(403).json({ error: 'Permission denied: User cannot delete the expense' });
+    }
+    const deletedExpense=await ExpenseModel.findByIdAndDelete(expenseId)
+    if(!deletedExpense){
+      return res.status(404).send({message:"Problem encountered while deleting expense"})
+    }
+    return res.status(204).send({message:"Expense Deleted Successfully"})
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+})
 export default router
