@@ -1,14 +1,12 @@
 import express,{ Response} from 'express';
 import mongoose from "mongoose";
 require("dotenv").config();
-import GroupModel,{GroupDocument} from '../models/groupModels';
-import GroupMemberModel,{GroupMemberDocument} from '../models/groupMemberModel';
+import GroupModel from '../models/groupModels';
 import ExpenseModel,{ExpenseDocument} from '../models/expenseModels';
-import UserModel from '../models/userModel';
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
 import { isMember } from '../permissions/isMember';
-import { canUserUpdateOrDeleteExpense } from '../permissions/canUpdateDeleteGroupExpense';
+
 
 
 const router = express.Router();
@@ -40,7 +38,6 @@ router.post("/:groupId/expenses/", verifyToken, async (req: Request, res: Respon
   try {
     const { payer, totalAmount, title, participants } = req.body;
     const { groupId } = req.params;
-
     // Validate the groupId (ensure it's a valid ObjectId)
     if (!mongoose.Types.ObjectId.isValid(groupId)) {
       return res.status(400).json({ error: 'Invalid groupId' });
@@ -79,7 +76,9 @@ router.post("/:groupId/expenses/", verifyToken, async (req: Request, res: Respon
     // Save the updated group and the new expense
     newExpense.updateMeta();
     await newExpense.save();
-    return res.status(201).json({ message: 'Expense added to the group successfully', expense: newExpense });
+    const expense=await ExpenseModel.findById(newExpense.id).populate("payer participants.user","username")
+
+    return res.status(201).json({ message: 'Expense added to the group successfully', expense:  expense});
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal Server Error' });

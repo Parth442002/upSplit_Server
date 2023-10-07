@@ -73,6 +73,7 @@ router.get("/:groupId/",verifyToken,async (req:Request,res:Response)=>{
 
   }
 })
+
 //? Add Member to Group
 router.post("/:groupId/members",verifyToken,async (req:Request,res:Response)=>{
   try {
