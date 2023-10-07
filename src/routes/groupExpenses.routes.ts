@@ -6,6 +6,7 @@ import ExpenseModel,{ExpenseDocument} from '../models/expenseModels';
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
 import { isMember } from '../permissions/isMember';
+import { canUserUpdateOrDeleteExpense } from '../permissions/canUpdateDeleteGroupExpense';
 
 
 
@@ -24,7 +25,7 @@ router.get('/:groupId/expenses', verifyToken,async (req: Request, res: Response)
       return res.status(404).send({error:"Either the User is not a member of the group, or the group does not exist"})
     }
     // Find all expenses that belong to the specified groupId
-    const expenses: ExpenseDocument[] = await ExpenseModel.find({ groupId });
+    const expenses: ExpenseDocument[] = await ExpenseModel.find({ groupId }).populate("payer participants.user","username")
     // Return the list of expenses as JSON
     return res.json(expenses);
   } catch (error) {
@@ -79,6 +80,38 @@ router.post("/:groupId/expenses/", verifyToken, async (req: Request, res: Respon
     const expense=await ExpenseModel.findById(newExpense.id).populate("payer participants.user","username")
 
     return res.status(201).json({ message: 'Expense added to the group successfully', expense:  expense});
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+//? Update Expense
+router.put("/:groupId/expenses/:expenseId/", verifyToken, async (req:Request, res:Response) => {
+  try {
+    const { groupId, expenseId } = req.params;
+    const {expenseData}=req.body
+    const group = await GroupModel.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+    const canUpdateDelete=await canUserUpdateOrDeleteExpense(req.user.id,groupId,expenseId)
+    if (!canUpdateDelete) {
+      return res.status(403).json({ error: 'Permission denied: User cannot delete the expense' });
+    }
+    // Delete the expense
+    const updatedExpense = await ExpenseModel.findByIdAndUpdate(
+      expenseId,
+      expenseData,
+      { new: true } // Return the updated document
+    )
+    if(!updatedExpense){
+      return res.status(500).send({message:"This is not working"})
+    }
+    updatedExpense.groupId=groupId
+    updatedExpense.save()
+    return res.status(201).send({message:"Expense Updated Successfully",expense:updatedExpense})
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal Server Error' });
