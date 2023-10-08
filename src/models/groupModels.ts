@@ -1,7 +1,10 @@
 import mongoose,{Schema,Document,} from "mongoose";
 import GroupMemberModel, { GroupMemberDocument } from "./groupMemberModel";
 import ExpenseModel,{ExpenseDocument} from "./expenseModels";
+import { debugPort } from "process";
 
+type UserTuple = [string, string]; // Tuple of two strings
+type DebtMap = Map<UserTuple, number>;
 export interface GroupDocument extends Document{
   name:String,
   desc?:String,
@@ -9,6 +12,12 @@ export interface GroupDocument extends Document{
   members:GroupMemberDocument[],
   settled:Boolean,
   createdDate: Date,
+
+  //Used to Store the Money relationships
+  DebtMap?:DebtMap,
+  //Virtual Properties
+  totalExpensesAmount?:Number,
+  //Methods
 }
 
 const GroupSchema:Schema=new mongoose.Schema({
@@ -30,9 +39,13 @@ const GroupSchema:Schema=new mongoose.Schema({
   createdDate:{
     type:Date,
     default:Date.now
-  }
+  },
+  debtMap: {
+    type: Map,
+    of: Number,
+    default: new Map(),
+  },
 })
-
 
 const GroupModel = mongoose.model<GroupDocument>('Group', GroupSchema);
 

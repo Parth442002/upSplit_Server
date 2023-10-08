@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 import ExpenseParticipantModel,{ ExpenseParticipantDocument } from './expenseParticipantModel';
 export interface ExpenseDocument extends Document{
   payer:String,
-  totaAmount:Number,
+  totalAmount:Number,
   amountPayed?:Number,
   participants: ExpenseParticipantDocument[];
   groupId?:String;
@@ -11,6 +11,7 @@ export interface ExpenseDocument extends Document{
   desc?:String,
   settled?:Boolean,
   settleDate?:Date,
+
 
   //Functions
   updateMeta(): Boolean;
@@ -60,25 +61,36 @@ const ExpenseSchema:Schema=new mongoose.Schema({
 
 //Update Functions
 ExpenseSchema.methods.updateMeta = function () {
+  const payerId = this.payer.toString();
+  this.participants.forEach((participant: ExpenseParticipantDocument) => {
+    if(participant.user.toString() === payerId){
+      participant.isPayer=true
+      participant.paidBack=participant.share
+    }
+    participant.updateMeta()
+    participant.save()
+  });
+  //Calculate the amountPayed
   this.amountPayed = this.participants.reduce((total: number, participant: ExpenseParticipantDocument) => {
     // Ensure both 'total' and 'participant.paidBack' are of type 'number'
     return total + (participant.paidBack.valueOf() || 0);
   }, 0);
-  this.settled=this.amountPayed==this.totalAmount
-  if (this.settled){
-    this.settleDate=new Date();
+  this.settled = this.amountPayed === this.totalAmount;
+  if(this.settled){
+    this.settleDate = new Date();
   }
-  //Updating the status of the payer
-  const payer: ExpenseParticipantDocument | undefined = this.participants.find(
-    (participant: ExpenseParticipantDocument) => participant.isPayer
-  );
-  if (payer) {
-    payer.paidBack = payer.share;
-    payer.updateMeta();
-  }
-
-  return this.settled
 };
+
+// Update the dedbtMap if groupId
+ExpenseSchema.post('save', function (expense: ExpenseDocument, next) {
+  // Check if the groupId is present in the input
+  if (expense.groupId) {
+    // Your post-save logic here
+    console.log('Expense saved with groupId:', expense.groupId);
+  }
+  next(); // Continue with the save process
+});
+
 
 const ExpenseModel = mongoose.model<ExpenseDocument>('Expense', ExpenseSchema);
 

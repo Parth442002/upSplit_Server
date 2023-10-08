@@ -141,4 +141,30 @@ router.delete("/:groupId/expenses/:expenseId/", verifyToken, async (req:Request,
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 })
+
+
+//? Get Debt Dict
+router.get('/:groupId/debtMap', verifyToken,async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    // Validate the groupId (ensure it's a valid ObjectId)
+    if (!mongoose.Types.ObjectId.isValid(groupId)) {
+      return res.status(400).json({ error: 'Invalid groupId' });
+    }
+    const validMember=await isMember(req.user.id,groupId)
+    if(!validMember){
+      return res.status(404).send({error:"Either the User is not a member of the group, or the group does not exist"})
+    }
+    const group=await GroupModel.findById(groupId)
+    if(!group){
+      return
+    }
+    const map=group.createDebtDict()
+    return res.json(map);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 export default router
