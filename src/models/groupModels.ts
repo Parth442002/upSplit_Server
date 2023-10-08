@@ -1,10 +1,13 @@
 import mongoose,{Schema,Document,} from "mongoose";
 import GroupMemberModel, { GroupMemberDocument } from "./groupMemberModel";
-import ExpenseModel,{ExpenseDocument} from "./expenseModels";
-import { debugPort } from "process";
 
-type UserTuple = [string, string]; // Tuple of two strings
-type DebtMap = Map<UserTuple, number>;
+type DebtMapType = Map<String, number>;
+
+// Factory function to create the default DebtMap
+function createDefaultDebtMap() {
+  return new Map<string, number>();
+}
+
 export interface GroupDocument extends Document{
   name:String,
   desc?:String,
@@ -14,7 +17,7 @@ export interface GroupDocument extends Document{
   createdDate: Date,
 
   //Used to Store the Money relationships
-  DebtMap?:DebtMap,
+  DebtMap:DebtMapType,
   //Virtual Properties
   totalExpensesAmount?:Number,
   //Methods
@@ -40,10 +43,10 @@ const GroupSchema:Schema=new mongoose.Schema({
     type:Date,
     default:Date.now
   },
-  debtMap: {
+  DebtMap: {
     type: Map,
     of: Number,
-    default: new Map(),
+    default: createDefaultDebtMap, // Use the factory function as the default value
   },
 })
 

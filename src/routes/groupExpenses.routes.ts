@@ -159,7 +159,7 @@ router.get('/:groupId/debtMap', verifyToken,async (req: Request, res: Response) 
     if(!group){
       return
     }
-    const map=group.createDebtDict()
+    const map=group.DebtMap
     return res.json(map);
   } catch (error) {
     console.error(error);

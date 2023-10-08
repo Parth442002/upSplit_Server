@@ -1,5 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import ExpenseParticipantModel,{ ExpenseParticipantDocument } from './expenseParticipantModel';
+import GroupModel from './groupModels';
+import { createUpdateDebtMap } from '../functions/createUpdateDebtMap';
 export interface ExpenseDocument extends Document{
   payer:String,
   totalAmount:Number,
@@ -82,15 +84,18 @@ ExpenseSchema.methods.updateMeta = function () {
 };
 
 // Update the dedbtMap if groupId
-ExpenseSchema.post('save', function (expense: ExpenseDocument, next) {
+ExpenseSchema.post('save',async function (expense: ExpenseDocument, next) {
   // Check if the groupId is present in the input
   if (expense.groupId) {
     // Your post-save logic here
-    console.log('Expense saved with groupId:', expense.groupId);
+    const group=await GroupModel.findById(expense.groupId)
+    if(!group){
+      return
+    }
+    createUpdateDebtMap(expense,group)
   }
   next(); // Continue with the save process
 });
-
 
 const ExpenseModel = mongoose.model<ExpenseDocument>('Expense', ExpenseSchema);
 
