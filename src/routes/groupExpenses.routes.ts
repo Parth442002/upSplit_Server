@@ -109,6 +109,7 @@ router.put("/:groupId/expenses/:expenseId/", verifyToken, async (req:Request, re
       return res.status(500).send({message:"This is not working"})
     }
     updatedExpense.groupId=groupId
+    updatedExpense.updateMeta()
     updatedExpense.save()
     return res.status(201).send({message:"Expense Updated Successfully",expense:updatedExpense})
 

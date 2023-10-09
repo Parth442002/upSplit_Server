@@ -92,9 +92,39 @@ ExpenseSchema.post('save',async function (expense: ExpenseDocument, next) {
     if(!group){
       return
     }
-    createUpdateDebtMap(expense,group)
+    createUpdateDebtMap(expense,group,"save")
   }
   next(); // Continue with the save process
+});
+
+ExpenseSchema.post("findOneAndDelete",async function(expense:ExpenseDocument,next){
+  if(expense.groupId){
+    const group=await GroupModel.findById(expense.groupId)
+    if(!group){
+      return
+    }
+    createUpdateDebtMap(expense,group,"delete")
+  }
+  next();
+})
+
+// Define the post-update middleware for ExpenseModel
+ExpenseSchema.post("findOneAndUpdate", async function (result: any) {
+  const originalExpense = await ExpenseModel.findOne({ _id: result._id }); // Get the original expense data
+  const updatedExpense = result._update.$set || {}; // Get the updated expense data
+
+  if (originalExpense && updatedExpense && originalExpense.groupId) {
+    const group = await GroupModel.findById(originalExpense.groupId);
+    if (!group) {
+      return;
+    }
+
+    // Remove the previous values associated with the original expense from the debt map
+    await createUpdateDebtMap(originalExpense, group, "delete");
+
+    // Update the debt map with the new values for the updated expense
+    await createUpdateDebtMap(updatedExpense, group, "save");
+  }
 });
 
 const ExpenseModel = mongoose.model<ExpenseDocument>('Expense', ExpenseSchema);
