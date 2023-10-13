@@ -2,7 +2,7 @@ import { group } from 'console';
 import GroupModel, { GroupDocument } from "../../models/groupModels";
 import ExpenseModel, { ExpenseDocument } from "../../models/expenseModels";
 
-export async function addExpenseDebtMap(expense:ExpenseDocument){
+export async function removeExpenseDebtMap(expense:ExpenseDocument){
   if (!expense.groupId){
     return;
   }
@@ -21,14 +21,11 @@ export async function addExpenseDebtMap(expense:ExpenseDocument){
     }
     if(group.DebtMap.has(debtKey)){
       const prevBalance=group.DebtMap.get(debtKey)
-      group.DebtMap.set(debtKey,Number(prevBalance)+participantExpenseBalance)
+      group.DebtMap.set(debtKey,Number(prevBalance)-participantExpenseBalance)
     }
     else if(group.DebtMap.has(reversedKey)){
       const prevBalance=group.DebtMap.get(reversedKey)
-      group.DebtMap.set(reversedKey,Number(prevBalance)-participantExpenseBalance)
-    }
-    else{
-      group.DebtMap.set(debtKey,participantExpenseBalance)
+      group.DebtMap.set(reversedKey,Number(prevBalance)+participantExpenseBalance)
     }
   })
   await group.save();

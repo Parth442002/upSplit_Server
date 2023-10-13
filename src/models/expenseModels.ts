@@ -3,6 +3,7 @@ import ExpenseParticipantModel,{ ExpenseParticipantDocument } from './expensePar
 import GroupModel from './groupModels';
 import { createUpdateDebtMap } from '../functions/createUpdateDebtMap';
 import { addExpenseDebtMap } from '../functions/DebtMap/addExpenseDebtMap';
+import { removeExpenseDebtMap } from '../functions/DebtMap/removeExpenseDebtMap';
 export interface ExpenseDocument extends Document{
   payer:String,
   totalAmount:Number,
@@ -18,7 +19,6 @@ export interface ExpenseDocument extends Document{
 
   //Functions
   updateMeta(): Boolean;
-  addExpenseDebtMap():void;
 }
 
 const ExpenseSchema:Schema=new mongoose.Schema({
@@ -85,9 +85,6 @@ ExpenseSchema.methods.updateMeta = function () {
   }
 };
 
-ExpenseSchema.methods.addExpenseDebtMap = async function () {
-  return addExpenseDebtMap(this);
-};
 
 const ExpenseModel = mongoose.model<ExpenseDocument>('Expense', ExpenseSchema);
 

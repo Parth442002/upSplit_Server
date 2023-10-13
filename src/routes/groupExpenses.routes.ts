@@ -7,6 +7,8 @@ import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
 import { isMember } from '../permissions/isMember';
 import { canUserUpdateOrDeleteExpense } from '../permissions/canUpdateDeleteGroupExpense';
+import { addExpenseDebtMap } from '../functions/DebtMap/addExpenseDebtMap';
+import { removeExpenseDebtMap } from '../functions/DebtMap/removeExpenseDebtMap';
 
 
 
@@ -76,8 +78,9 @@ router.post("/:groupId/expenses/", verifyToken, async (req: Request, res: Respon
     });
     // Save the updated group and the new expense
     newExpense.updateMeta();
-    newExpense.addExpenseDebtMap();
     await newExpense.save();
+    //Updating the Expense DebtMap
+    await addExpenseDebtMap(newExpense);
     const expense=await ExpenseModel.findById(newExpense.id).populate("payer participants.user","username")
 
     return res.status(201).json({ message: 'Expense added to the group successfully', expense:  expense});
@@ -132,10 +135,13 @@ router.delete("/:groupId/expenses/:expenseId/", verifyToken, async (req:Request,
     if (!canUpdateDelete) {
       return res.status(403).json({ error: 'Permission denied: User cannot delete the expense' });
     }
-    const deletedExpense=await ExpenseModel.findByIdAndDelete(expenseId)
+    const deletedExpense=await ExpenseModel.findByIdAndDelete
+    (expenseId)
     if(!deletedExpense){
       return res.status(404).send({message:"Problem encountered while deleting expense"})
     }
+    //Removing Expense Calc's from the debtMap
+    await removeExpenseDebtMap(deletedExpense);
     return res.status(204).send({message:"Expense Deleted Successfully"})
 
   } catch (error) {
@@ -145,28 +151,6 @@ router.delete("/:groupId/expenses/:expenseId/", verifyToken, async (req:Request,
 })
 
 
-//? Get Debt Dict
-router.get('/:groupId/debtMap', verifyToken,async (req: Request, res: Response) => {
-  try {
-    const { groupId } = req.params;
-    // Validate the groupId (ensure it's a valid ObjectId)
-    if (!mongoose.Types.ObjectId.isValid(groupId)) {
-      return res.status(400).json({ error: 'Invalid groupId' });
-    }
-    const validMember=await isMember(req.user.id,groupId)
-    if(!validMember){
-      return res.status(404).send({error:"Either the User is not a member of the group, or the group does not exist"})
-    }
-    const group=await GroupModel.findById(groupId)
-    if(!group){
-      return
-    }
-    const map=group.DebtMap
-    return res.json(map);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+
 
 export default router
