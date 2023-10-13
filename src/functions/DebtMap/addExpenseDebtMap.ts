@@ -1,4 +1,3 @@
-import { group } from 'console';
 import GroupModel, { GroupDocument } from "../../models/groupModels";
 import ExpenseModel, { ExpenseDocument } from "../../models/expenseModels";
 

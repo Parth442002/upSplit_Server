@@ -61,8 +61,6 @@ const ExpenseSchema:Schema=new mongoose.Schema({
     required:false
   }
 })
-
-
 //Update Functions
 ExpenseSchema.methods.updateMeta = function () {
   const payerId = this.payer.toString();

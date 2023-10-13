@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 require("dotenv").config();
 import GroupModel,{GroupDocument} from '../models/groupModels';
 import GroupMemberModel,{GroupMemberDocument} from '../models/groupMemberModel';
-import UserModel from '../models/userModel';
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
 import { isMember } from '../permissions/isMember';
@@ -12,8 +11,7 @@ import {canAddMember} from "../permissions/canAddMember"
 //Functions
 import { addMembersToGroup } from '../functions/addMembersToGroup';
 import { removeMembersFromGroups } from '../functions/removeMembersFromGroups';
-import { verify } from 'crypto';
-
+import { settleDebt } from '../functions/DebtMap/settleDebt';
 const router = express.Router();
 
 //? Get all Groups of Current User
@@ -122,4 +120,27 @@ router.delete("/:groupId/remove_members",verifyToken,async (req:Request,res:Resp
   }
 })
 
-export default router
+//? Settle Expenses in the group
+router.post("/:groupId/settle",verifyToken,async (req:Request,res:Response)=>{
+  try {
+    const {groupId}=req.params
+    const {sender,receiver,amount}=req.body
+    if(!(sender && receiver && amount) && (amount>0)){
+      return res.status(400).send({error:"Sent Invalid Data"})
+    }
+    const group=await GroupModel.findById(groupId)
+    if(!group){
+      return res.status(404).send({error:"No Group Found"})
+    }
+    const updatedGroup=await settleDebt(groupId,sender,receiver,amount);
+    if(!updatedGroup){
+      return res.status(500).send({error:"Group Updation Failed"})
+    }
+    updatedGroup.save();
+    return res.status(201).send(updatedGroup)
+  } catch (error) {
+    return res.status(500).send({error:"Internal Server Error"})
+  }
+})
+
+export default router;

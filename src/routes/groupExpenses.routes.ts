@@ -167,7 +167,7 @@ router.get("/:groupId/debtmap",verifyToken,async (req:Request,res:Response)=>{
       return res.status(404).json({ error: 'Group not found' });
     }
     const data=await formatDebtMap(group)
-    return res.status(200).send(data)
+    return res.status(200).send({groupMap:group.DebtMap,data:data})
   } catch (error) {
     return res.status(500).send({error:"Internal Server Error"})
   }
