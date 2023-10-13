@@ -9,6 +9,7 @@ import { isMember } from '../permissions/isMember';
 import { canUserUpdateOrDeleteExpense } from '../permissions/canUpdateDeleteGroupExpense';
 import { addExpenseDebtMap } from '../functions/DebtMap/addExpenseDebtMap';
 import { removeExpenseDebtMap } from '../functions/DebtMap/removeExpenseDebtMap';
+import { formatDebtMap } from '../functions/DebtMap/formatDebtMap';
 
 
 
@@ -157,7 +158,20 @@ router.delete("/:groupId/expenses/:expenseId/", verifyToken, async (req:Request,
   }
 })
 
+//? Get All Owes and Owed From the Group
+router.get("/:groupId/debtmap",verifyToken,async (req:Request,res:Response)=>{
+  try {
+    const {groupId}=req.params
+    const group = await GroupModel.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+    const data=await formatDebtMap(group)
+    return res.status(200).send(data)
+  } catch (error) {
+    return res.status(500).send({error:"Internal Server Error"})
+  }
+})
 
 
-
-export default router
+export default router;
