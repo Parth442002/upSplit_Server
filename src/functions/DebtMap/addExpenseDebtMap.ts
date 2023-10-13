@@ -9,7 +9,7 @@ export async function addExpenseDebtMap(expense:ExpenseDocument){
   if(!group){
     return;
   }
-  const receiver=expense.payer.toString()
+  const receiver=expense.payer.toString();
   expense.participants.forEach((participant)=>{
     const debtKey=`${receiver}-${participant.user.toString()}`
     const reversedKey=`${participant.user.toString()}-${receiver}`
