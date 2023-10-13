@@ -76,6 +76,7 @@ router.post("/:groupId/expenses/", verifyToken, async (req: Request, res: Respon
     });
     // Save the updated group and the new expense
     newExpense.updateMeta();
+    newExpense.addExpenseDebtMap();
     await newExpense.save();
     const expense=await ExpenseModel.findById(newExpense.id).populate("payer participants.user","username")
 
