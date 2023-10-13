@@ -103,7 +103,12 @@ router.put("/:groupId/expenses/:expenseId/", verifyToken, async (req:Request, re
     if (!canUpdateDelete) {
       return res.status(403).json({ error: 'Permission denied: User cannot delete the expense' });
     }
-    // Delete the expense
+    //Get Unupdated Expense Data
+    const prevExpense=await ExpenseModel.findById(expenseId)
+    if(prevExpense){
+      await removeExpenseDebtMap(prevExpense);
+    }
+    // Update the expense
     const updatedExpense = await ExpenseModel.findByIdAndUpdate(
       expenseId,
       expenseData,
@@ -114,7 +119,9 @@ router.put("/:groupId/expenses/:expenseId/", verifyToken, async (req:Request, re
     }
     updatedExpense.groupId=groupId
     updatedExpense.updateMeta()
-    updatedExpense.save()
+    updatedExpense.save();
+    //Update the DebtMap
+    await addExpenseDebtMap(updatedExpense);
     return res.status(201).send({message:"Expense Updated Successfully",expense:updatedExpense})
 
   } catch (error) {
