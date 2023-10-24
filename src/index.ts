@@ -14,6 +14,13 @@ const app: Express = express();
 app.use(express.json());
 app.use(cors());
 //Routes Information
+app.get("",async(req:Request,res:Response)=>{
+  try {
+    return res.status(200).send({status:true,message:"Connected"})
+  } catch (error) {
+    return res.status(500).send("Internal Server Error");
+  }
+})
 app.use("/auth",AuthRoutes);
 app.use("/expenses",ExpenseRoutes);
 app.use("/groups",GroupRoutes);
