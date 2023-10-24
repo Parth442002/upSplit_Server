@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, local-machine]
+    runs-on: [local-machine]
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
