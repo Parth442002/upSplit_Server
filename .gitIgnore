@@ -5,3 +5,4 @@ Dockerfile
 .dockerignore
 upsplit_key.pem
 dockerize.sh
+minor
