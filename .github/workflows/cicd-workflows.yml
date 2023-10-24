@@ -6,7 +6,7 @@ on:
       - main
 jobs:
   build:
-    runs-on: [ip-172-31-43-61]
+    runs-on: self-hosted
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
@@ -19,7 +19,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: [ip-172-31-43-61]
+    runs-on: self-hosted
     steps:
       - name: Pull Image from Docker Hub
         run: sudo docker pull parth404/upsplit_server:1.0
