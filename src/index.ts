@@ -14,6 +14,8 @@ const app: Express = express();
 app.use(express.json());
 app.use(cors());
 //Routes Information
+
+//HomePage of Api
 app.get("",async(req:Request,res:Response)=>{
   try {
     return res.status(200).send({status:true,message:"Connected"})
