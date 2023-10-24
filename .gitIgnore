@@ -4,4 +4,3 @@ dist
 Dockerfile
 .dockerignore
 upsplit_key.pem
-minor
