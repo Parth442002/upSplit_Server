@@ -1,6 +1,7 @@
 require('dotenv').config();
 import express, { Express, Request, Response } from "express";
 import connect from "./config/database"
+import cors from "cors"
 //Route Files
 import AuthRoutes from "./routes/authentication.routes"
 import ExpenseRoutes from "./routes/expense.routes";
@@ -11,6 +12,7 @@ import GroupExpenseRoutes from "./routes/groupExpenses.routes";
 const port:Number = Number(process.env.port)||8000
 const app: Express = express();
 app.use(express.json());
+app.use(cors());
 //Routes Information
 app.use("/auth",AuthRoutes);
 app.use("/expenses",ExpenseRoutes);
