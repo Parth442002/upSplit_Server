@@ -1,6 +1,6 @@
-import GroupModel from "../../models/groupModels";
+import GroupModel from "../models/groupModels";
 
-async function isGroupAdmin(groupId: string, userId: string): Promise<Boolean> {
+export async function isGroupAdmin(groupId: string, userId: string): Promise<Boolean> {
   const group = await GroupModel.findById(groupId);
   if (!group) {
     return false;
@@ -12,4 +12,4 @@ async function isGroupAdmin(groupId: string, userId: string): Promise<Boolean> {
   const isAdmin = group.members.find((member) => member.user.toString() === userId)?.isAdmin || false;
   return isAdmin;
 }
-export default isGroupAdmin;
+

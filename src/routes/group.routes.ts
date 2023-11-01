@@ -1,12 +1,11 @@
 import express,{ Response} from 'express';
-import mongoose from "mongoose";
 require("dotenv").config();
-import GroupModel,{GroupDocument} from '../models/groupModels';
-import GroupMemberModel,{GroupMemberDocument} from '../models/groupMemberModel';
+import GroupModel from '../models/groupModels';
+import GroupMemberModel from '../models/groupMemberModel';
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
 import { isMember } from '../permissions/isMember';
-import isGroupAdmin from '../functions/Group/isGroupAdmin';
+import {isGroupAdmin} from '../permissions/isGroupAdmin';
 const router = express.Router();
 
 //? Get all Groups of Current User

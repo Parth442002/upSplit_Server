@@ -4,7 +4,9 @@ import connect from "./config/database"
 //Route Files
 import AuthRoutes from "./routes/authentication.routes"
 import ExpenseRoutes from "./routes/expense.routes";
+//Group Routes
 import GroupRoutes from "./routes/group.routes"
+import GroupMemberRoutes from "./routes/groupMember.routes"
 import GroupExpenseRoutes from "./routes/groupExpenses.routes";
 import GroupPaymentRoutes from "./routes/groupPayments.routes";
 //Config Files
@@ -15,6 +17,7 @@ app.use(express.json());
 app.use("/auth",AuthRoutes);
 app.use("/expenses",ExpenseRoutes);
 app.use("/groups",GroupRoutes);
+app.use("/groups",GroupMemberRoutes);
 app.use("/groups",GroupExpenseRoutes);
 app.use("/groups",GroupPaymentRoutes);
 
