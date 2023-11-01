@@ -48,6 +48,8 @@ const GroupSchema:Schema=new mongoose.Schema({
     of: Number,
     default: createDefaultDebtMap, // Use the factory function as the default value
   },
+},{
+  timestamps: true, // Enable timestamps
 })
 
 const GroupModel = mongoose.model<GroupDocument>('Group', GroupSchema);

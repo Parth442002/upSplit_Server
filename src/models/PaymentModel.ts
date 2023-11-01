@@ -28,15 +28,13 @@ const PaymentSchema: Schema = new mongoose.Schema({
   remarks: {
     type: String,
   },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
   group: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group', // Reference the Group model
     required: true,
   },
+},{
+  timestamps: true, // Enable timestamps
 });
 
 const PaymentModel = mongoose.model<PaymentDocument>('Payment', PaymentSchema);

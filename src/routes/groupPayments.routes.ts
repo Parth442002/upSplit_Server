@@ -38,7 +38,6 @@ router.post('/:groupId/payments/', verifyToken, async (req:Request, res:Response
       payee:payee,
       amount:amount,
       description:req.body?.description,
-      date:new Date(),
       group: groupId, // Assign the group ID to the payment
     });
     // Save the payment to the database
@@ -71,7 +70,6 @@ router.put('/:groupId/payments/:paymentId', verifyToken, async (req: Request, re
         payee: payee,
         amount: amount,
         description: req.body?.description,
-        date:new Date(),
       },
       { new: true } // Return the updated document
     );

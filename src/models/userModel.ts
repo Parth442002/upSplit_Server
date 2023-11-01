@@ -37,6 +37,8 @@ const userSchema = new Schema<UserDocument>({
     trim: true,
   },
   token: { type: String },
+},{
+  timestamps: true, // Enable timestamps
 });
 
 // Create the User model

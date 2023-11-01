@@ -34,6 +34,8 @@ const GroupMemberSchema=new mongoose.Schema({
   settled:{
     type:Boolean,
   }
+},{
+  timestamps: true, // Enable timestamps
 })
 
 const GroupMemberModel = mongoose.model<GroupMemberDocument>('GroupMember', GroupMemberSchema);

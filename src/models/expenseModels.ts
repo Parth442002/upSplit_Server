@@ -60,6 +60,8 @@ const ExpenseSchema:Schema=new mongoose.Schema({
     type:Date,
     required:false
   }
+},{
+  timestamps: true, // Enable timestamps
 })
 //Update Functions
 ExpenseSchema.methods.updateMeta = function () {
