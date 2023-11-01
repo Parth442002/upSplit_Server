@@ -6,7 +6,7 @@ import AuthRoutes from "./routes/authentication.routes"
 import ExpenseRoutes from "./routes/expense.routes";
 import GroupRoutes from "./routes/group.routes"
 import GroupExpenseRoutes from "./routes/groupExpenses.routes";
-
+import GroupPaymentRoutes from "./routes/groupPayments.routes";
 //Config Files
 const port:Number = Number(process.env.port)||8000
 const app: Express = express();
@@ -16,6 +16,7 @@ app.use("/auth",AuthRoutes);
 app.use("/expenses",ExpenseRoutes);
 app.use("/groups",GroupRoutes);
 app.use("/groups",GroupExpenseRoutes);
+app.use("/groups",GroupPaymentRoutes);
 
 //Connect to DB
 connect();
