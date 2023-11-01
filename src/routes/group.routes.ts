@@ -6,12 +6,7 @@ import GroupMemberModel,{GroupMemberDocument} from '../models/groupMemberModel';
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
 import { isMember } from '../permissions/isMember';
-import {canAddMember} from "../permissions/canAddMember"
-
-//Functions
-import { addMembersToGroup } from '../functions/addMembersToGroup';
-import { removeMembersFromGroups } from '../functions/removeMembersFromGroups';
-import { settleDebt } from '../functions/DebtMap/settleDebt';
+import isGroupAdmin from '../functions/Group/isGroupAdmin';
 const router = express.Router();
 
 //? Get all Groups of Current User
@@ -66,81 +61,56 @@ router.get("/:groupId/",verifyToken,async (req:Request,res:Response)=>{
       return res.status(404).send({error:"Group Not found"})
     }
     return res.status(201).send({group:group})
-
   } catch (error) {
-
+    console.error(error);
+    return res.status(500).send({ error: "An error occurred accessing group information" });
   }
 })
 
-//? Add Member to Group
-router.post("/:groupId/members",verifyToken,async (req:Request,res:Response)=>{
+//?Update Group Info
+router.put("/:groupId/", verifyToken, async (req, res) => {
   try {
-    const { memberDataList } = req.body;
-    const {groupId}=req.params
-    if (!mongoose.Types.ObjectId.isValid(groupId)||memberDataList.length==0) {
-      return res.status(400).json({ error: 'Incomplete Data' });
+    const { groupId } = req.params;
+    const { name, desc } = req.body;
+    if (! isGroupAdmin(groupId,req.user.id)) {
+      return res.status(403).send({ error: "You do not have permission to update group info" });
     }
+    // Find the group by its ID
     const group = await GroupModel.findById(groupId);
-    if(!group){
-      return res.status(404).send("The Group does not exist")
+    if (!group) {
+      return res.status(404).send({ error: "Group Not found" });
     }
-    const canAdd=await canAddMember(group,req.user.id)
-    if(!canAdd){
-      return res.status(400).send("You are not the admin")
+    if (name) {
+      group.name = name;
     }
-    //ACTUAL Process
-    const updatedGroup=await addMembersToGroup(group,memberDataList)
-    return res.status(201).send(updatedGroup)
+    if (desc) {
+      group.desc = desc;
+    }
+    await group.save();
+    return res.status(200).send({ message: "Group information updated successfully", group });
   } catch (error) {
-    return res.status(400).send(error)
+    console.error(error);
+    return res.status(500).send({ error: "An error occurred while updating group information" });
   }
-})
+});
 
-//? Remove members from group
-router.delete("/:groupId/remove_members",verifyToken,async (req:Request,res:Response)=>{
+//?Delete Group
+router.delete("/:groupId/", verifyToken, async (req, res) => {
   try {
-    const { userIds } = req.body;
-    const {groupId}=req.params
-    if (!mongoose.Types.ObjectId.isValid(groupId)||userIds.length==0) {
-      return res.status(400).json({ error: 'Incomplete Data' });
+    const { groupId } = req.params;
+    if (! isGroupAdmin(groupId,req.user.id)) {
+      return res.status(403).send({ error: "You do not have permission to update group info" });
     }
-    const group = await GroupModel.findById(groupId);
-    if(!group){
-      return res.status(404).send("The Group does not exist")
+    // Find the group by its ID
+    const group = await GroupModel.findByIdAndDelete(groupId);
+    if (!group) {
+      return res.status(404).send({ error: "Group Not found" });
     }
-    const canAdd=await canAddMember(group,req.user.id)
-    if(!canAdd){
-      return res.status(400).send("You are not the admin")
-    }
-    //ACTUAL Process
-    const updatedGroup=await removeMembersFromGroups(group,userIds)
-    return res.status(201).send(updatedGroup)
+    return res.status(200).send({ message: "Group Deleted successfully", group });
   } catch (error) {
-    return res.status(400).send(error)
+    console.error(error);
+    return res.status(500).send({ error: "An error occurred while Deleting group information" });
   }
-})
-
-//? Settle Expenses in the group
-router.post("/:groupId/settle",verifyToken,async (req:Request,res:Response)=>{
-  try {
-    const {groupId}=req.params
-    const {sender,receiver,amount}=req.body
-    if(!(sender && receiver && amount) && (amount>0)){
-      return res.status(400).send({error:"Sent Invalid Data"})
-    }
-    const group=await GroupModel.findById(groupId)
-    if(!group){
-      return res.status(404).send({error:"No Group Found"})
-    }
-    const updatedGroup=await settleDebt(groupId,sender,receiver,amount);
-    if(!updatedGroup){
-      return res.status(500).send({error:"Group Updation Failed"})
-    }
-    updatedGroup.save();
-    return res.status(201).send(updatedGroup)
-  } catch (error) {
-    return res.status(500).send({error:"Internal Server Error"})
-  }
-})
+});
 
 export default router;

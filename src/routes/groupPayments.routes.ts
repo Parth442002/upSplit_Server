@@ -3,7 +3,6 @@ require("dotenv").config();
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
 import PaymentModel from '../models/PaymentModel';
-import ExpenseModel from '../models/expenseModels';
 import { addRepaymentDebtMap } from '../functions/DebtMap/addPaymentDebtMap';
 import { removePaymentDebtMap } from '../functions/DebtMap/removePaymentDebtMap';
 
@@ -80,7 +79,7 @@ router.put('/:groupId/payments/:paymentId', verifyToken, async (req: Request, re
     if (!updatedPayment) {
       return res.status(404).send("Payment not found");
     }
-    if (!updatedPayment && oldPayment){
+    if (updatedPayment && oldPayment){
       await removePaymentDebtMap(oldPayment);
       await addRepaymentDebtMap(updatedPayment)
     }
@@ -112,33 +111,6 @@ router.delete('/:groupId/payments/:paymentId', verifyToken, async (req: Request,
     return res.status(500).send({ message: 'An error occurred while deleting the payment' });
   }
 });
-
-
-//? Testing Group Final List
-router.get("/:groupId/final/",verifyToken,async (req:Request,res:Response)=>{
-  try {
-    const {groupId}=req.params
-    const combinedList = await Promise.all([
-      ExpenseModel.find({ groupId }).select('date').lean(),
-      PaymentModel.find({ group: groupId }).select('date').lean(),
-    ]);
-
-    // Merge the two result arrays and maintain their type (expense or payment).
-    const mergedList = [
-      ...combinedList[0].map((expense) => ({ type: 'expense', timestamp: expense.date, data: expense })),
-      ...combinedList[1].map((payment) => ({ type: 'payment', timestamp: payment.date, data: payment })),
-    ];
-
-    // Sort the merged list by timestamp in ascending order.
-    mergedList.sort((a, b) => a.timestamp - b.timestamp);
-
-    // Now, mergedList contains both group expenses and group payments in chronological order.
-    res.status(200).json(mergedList);
-  } catch (error) {
-
-  }
-})
-
 
 export default router;
 
