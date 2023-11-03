@@ -1,12 +1,19 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-// Define the User document interface
+type DebtMapType = Map<String, number>;
+
+// Factory function to create the default DebtMap
+function createDefaultDebtMap() {
+  return new Map<string, number>();
+}
+
 export interface UserDocument extends Document {
   phoneNumber: string;
   password: string;
   profileUrl?: string;
   username:String;
   token?:String,
+  debtMap:DebtMapType,
 }
 // Create the User schema
 const userSchema = new Schema<UserDocument>({
@@ -37,8 +44,13 @@ const userSchema = new Schema<UserDocument>({
     trim: true,
   },
   token: { type: String },
+  debtMap: {
+    type: Map,
+    of: Number,
+    default: createDefaultDebtMap,
+  },
 },{
-  timestamps: true, // Enable timestamps
+  timestamps: true,
 });
 
 // Create the User model

@@ -6,17 +6,17 @@ import { ExpenseParticipantDocument } from '../models/expenseParticipantModel';
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
 import {isPayer} from "../permissions/isPayer"
+import { userDebtAddExpense,userDebtRemoveExpense } from '../Triggers/Expense/userDebtMap';
 
 const router = express.Router();
 
-//Get all Expense were you are a payer or participant
+//Get all Expense in which you are a part.
 router.get("/",verifyToken,async(req:Request,res:Response)=>{
   try {
-    console.log(req.user.id)
     const expenses = await ExpenseModel.find({
       $or: [
-        { payer: req.user.id }, // User is the payer
-        { 'participants.user': req.user.id }, // User is one of the participants
+        { payer: req.user.id }, //
+        { 'participants.user': req.user.id },
       ],
     }).populate('payer participants.user', 'username');
     return res.status(200).send(expenses)
@@ -43,6 +43,7 @@ router.post("/",verifyToken,async(req:Request,res:Response)=>{
     })
     expense.updateMeta();
     await expense.save()
+    await userDebtAddExpense(expense);
     return res.status(201).send(expense)
   } catch (error) {
     console.log(error)
@@ -59,16 +60,18 @@ router.put("/:expenseId/",verifyToken,async(req:Request,res:Response)=>{
     if (!mongoose.Types.ObjectId.isValid(expenseId)) {
       return res.status(400).json({ error: 'Invalid expense ID' });
     }
-
+    const oldExpense=await ExpenseModel.findById(expenseId)
     const updatedExpense = await ExpenseModel.findByIdAndUpdate(
       expenseId,
       updates,
       { new: true } // Return the updated document
     );
 
-    if (!updatedExpense) {
+    if (!updatedExpense || !oldExpense) {
       return res.status(404).json({ error: 'Expense not found' });
     }
+    await userDebtRemoveExpense(oldExpense)
+    await userDebtAddExpense(updatedExpense)
     // Call the updateMeta function on each participant
     for (const participant of updatedExpense.participants) {
       participant.updateMeta();
@@ -100,6 +103,7 @@ router.delete('/:expenseId', verifyToken, async (req:Request, res:Response) => {
     if (!deletedExpense) {
       return res.status(404).json({ error: 'Expense not found' });
     }
+    await userDebtRemoveExpense(deletedExpense)
 
     return res.json({ message: 'Expense deleted successfully', deletedExpense });
   } catch (error) {

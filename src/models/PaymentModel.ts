@@ -6,7 +6,7 @@ export interface PaymentDocument extends Document {
   amount: number;
   remarks?: string;
   date: Date;
-  group: string; // The group to which the payment belongs
+  group?: string; // The group to which the payment belongs
 }
 
 const PaymentSchema: Schema = new mongoose.Schema({
@@ -31,7 +31,6 @@ const PaymentSchema: Schema = new mongoose.Schema({
   group: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group', // Reference the Group model
-    required: true,
   },
 },{
   timestamps: true, // Enable timestamps

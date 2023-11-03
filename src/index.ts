@@ -1,7 +1,8 @@
 require('dotenv').config();
 import express, { Express, Request, Response } from "express";
 import connect from "./config/database"
-//Route Files
+
+import DevRoutes from "./routes/dev.routes";
 import AuthRoutes from "./routes/authentication.routes"
 import ExpenseRoutes from "./routes/expense.routes";
 //Group Routes
@@ -14,6 +15,7 @@ const port:Number = Number(process.env.port)||8000
 const app: Express = express();
 app.use(express.json());
 //Routes Information
+app.use("/dev",DevRoutes);
 app.use("/auth",AuthRoutes);
 app.use("/expenses",ExpenseRoutes);
 app.use("/groups",GroupRoutes);

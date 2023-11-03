@@ -18,9 +18,6 @@ export interface GroupDocument extends Document{
 
   //Used to Store the Money relationships
   DebtMap:DebtMapType,
-  //Virtual Properties
-  totalExpensesAmount?:Number,
-  //Methods
 }
 
 const GroupSchema:Schema=new mongoose.Schema({
@@ -46,7 +43,7 @@ const GroupSchema:Schema=new mongoose.Schema({
   DebtMap: {
     type: Map,
     of: Number,
-    default: createDefaultDebtMap, // Use the factory function as the default value
+    default: createDefaultDebtMap,
   },
 },{
   timestamps: true, // Enable timestamps

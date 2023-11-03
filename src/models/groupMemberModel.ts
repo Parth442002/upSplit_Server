@@ -12,7 +12,7 @@ export interface GroupMemberDocument extends Document{
 const GroupMemberSchema=new mongoose.Schema({
   user:{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to User model (assuming you have a User model)
+    ref: 'User',
     required: true,
   },
   groupId:{

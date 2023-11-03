@@ -1,22 +1,17 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import ExpenseParticipantModel,{ ExpenseParticipantDocument } from './expenseParticipantModel';
-import GroupModel from './groupModels';
-import { createUpdateDebtMap } from '../functions/createUpdateDebtMap';
-import { addExpenseDebtMap } from '../functions/DebtMap/addExpenseDebtMap';
-import { removeExpenseDebtMap } from '../functions/DebtMap/removeExpenseDebtMap';
 export interface ExpenseDocument extends Document{
   payer:String,
   totalAmount:Number,
   amountPayed?:Number,
   participants: ExpenseParticipantDocument[];
   groupId?:String;
+  category:String,
   //Meta Data
   title:String,
   desc?:String,
   settled?:Boolean,
   settleDate?:Date,
-
-
   //Functions
   updateMeta(): Boolean;
 }
@@ -51,6 +46,11 @@ const ExpenseSchema:Schema=new mongoose.Schema({
   desc:{
     type:String,
     required:false
+  },
+  category: {
+    type: String,
+    enum: ['Food','Travel','Rent','Groceries','Apparel','Electronics',  'Misc','HealthCare','Bills',],
+    default: 'Misc',
   },
   settled:{
     type:Boolean,
