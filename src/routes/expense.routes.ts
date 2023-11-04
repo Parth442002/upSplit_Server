@@ -70,8 +70,7 @@ router.put("/:expenseId/",verifyToken,async(req:Request,res:Response)=>{
     if (!updatedExpense || !oldExpense) {
       return res.status(404).json({ error: 'Expense not found' });
     }
-    await userDebtRemoveExpense(oldExpense)
-    await userDebtAddExpense(updatedExpense)
+    await userDebtRemoveExpense(oldExpense);
     // Call the updateMeta function on each participant
     for (const participant of updatedExpense.participants) {
       participant.updateMeta();
@@ -79,6 +78,7 @@ router.put("/:expenseId/",verifyToken,async(req:Request,res:Response)=>{
 
     updatedExpense.updateMeta();
     await updatedExpense.save()
+    await userDebtAddExpense(updatedExpense);
     return res.status(201).send(updatedExpense)
   } catch (error) {
     console.log(error)

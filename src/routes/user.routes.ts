@@ -5,7 +5,7 @@ import ExpenseModel,{ExpenseDocument} from '../models/expenseModels';
 import { ExpenseParticipantDocument } from '../models/expenseParticipantModel';
 import { Request } from '../types/Request';
 import { verifyToken } from '../middleware/auth';
-import {isPayer} from "../permissions/isGroupParticipant"
+import {isPayer} from "../permissions/isPayer"
 
 const router = express.Router();
 

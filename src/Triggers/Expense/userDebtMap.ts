@@ -16,8 +16,8 @@ export async function userDebtAddExpense(expense:ExpenseDocument){
       const amount = Number(participant.share) - Number(participant.paidBack)
       payer.debtMap.set(participantId,prevPayerAmount+amount)
       participantUser.debtMap.set(payerId,prevParticipantAmount-amount)
-      participantUser.save()
       payer.save()
+      participantUser.save()
     }
   })
 }
@@ -39,8 +39,8 @@ export async function userDebtRemoveExpense(expense:ExpenseDocument){
       const amount = Number(participant.share) - Number(participant.paidBack)
       payer.debtMap.set(participantId,prevPayerAmount-amount)
       participantUser.debtMap.set(payerId,prevParticipantAmount+amount)
-      participantUser.save()
       payer.save()
+      participantUser.save()
     }
   })
 }
